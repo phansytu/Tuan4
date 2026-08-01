@@ -1,12 +1,13 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentValidation;
 using GlobalMiddlewear.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-
 namespace GlobalMiddlewear.Handler
 {
     public class GlobalExceptionHandler : IExceptionHandler
@@ -24,6 +25,27 @@ namespace GlobalMiddlewear.Handler
             CancellationToken cancellationToken)
         {
             _logger.LogError(exception, "Lỗi giao dịch ngân hàng: {Message}", exception.Message);
+            if (exception is ValidationException validationException)
+            {
+                var errors = validationException.Errors
+                .GroupBy(e => e.PropertyName)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(e => e.ErrorMessage).ToArray()
+                );
+                var ValidationProblemDetails = new HttpValidationProblemDetails(errors)
+                {
+                    Status = StatusCodes.Status400BadRequest,
+                    Title = "Dữ liệu không hợp lệ",
+                    Detail = "Vui lòng kiểm tra lại dữ liệu gửi lên.",
+                    Instance = httpContext.Request.Path
+                };
+
+                httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+                await httpContext.Response.WriteAsJsonAsync(ValidationProblemDetails, cancellationToken);
+
+                return true;
+            }
 
             // var (statusCode, title):     
             var (statusCode, title) = exception switch //Lấy giá trị của biến exception, kiểm tra nó thuộc loại nào, sau đó trả về một kết quả tương ứng.
