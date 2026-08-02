@@ -21,9 +21,15 @@ namespace GlobalMiddlewear.Exceptions
             : base($"Tài khoản {SoTaiKhoan} không đủ số dư. Số dư hiện tại: {SoDu:N0} VNĐ, số tiền cần chuyển: {tienChuyen:N0} VNĐ.") { }
     }
 
+
     //quy tắc chuyển tiền (400)
     public class InvalidTransferException : Exception
     {
         public InvalidTransferException(string message) : base(message) { }
+    }
+    public class AccountAlreadyExistsException : BankException
+    {
+        public AccountAlreadyExistsException(string soTaiKhoan)
+            : base($"Tài khoản số {soTaiKhoan} đã tồn tại trong hệ thống.") { }
     }
 }

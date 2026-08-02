@@ -13,19 +13,18 @@ public class Program
 
         builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
-        // 1. Thêm Controllers và Swagger
+
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
-        // 2. Đăng ký Dependency Injection & Exception Handler
+        builder.Services.AddScoped<IAccountService, AccountService>();
         builder.Services.AddScoped<IBankService, BankService>();
         builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
         builder.Services.AddProblemDetails();
 
         var app = builder.Build();
 
-        // 3. Bật Swagger giao diện UI
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();

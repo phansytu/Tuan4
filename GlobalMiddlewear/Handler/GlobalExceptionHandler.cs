@@ -53,6 +53,7 @@ namespace GlobalMiddlewear.Handler
                 AccountNotFoundException => (StatusCodes.Status404NotFound, "Tài khoản không tồn tại"),
                 InsufficientBalanceException => (StatusCodes.Status400BadRequest, "Số dư không đủ"),
                 InvalidTransferException => (StatusCodes.Status400BadRequest, "Giao dịch không hợp lệ"),
+                AccountAlreadyExistsException => (StatusCodes.Status400BadRequest, "Tài khoản đã tồn tại"),
                 _ => (StatusCodes.Status500InternalServerError, "Lỗi hệ thống ngân hàng") //moi truong hop con lai
             };
 

@@ -5,6 +5,7 @@ using FluentValidation;
 using GlobalMiddlewear.Dto;
 using GlobalMiddlewear.Exceptions;
 using GlobalMiddlewear.Models;
+using GlobalMiddlewear.DataSource;
 namespace GlobalMiddlewear.Service
 {
     public interface IBankService
@@ -14,11 +15,7 @@ namespace GlobalMiddlewear.Service
     public class BankService : IBankService
     {
         private readonly IValidator<TransferRequest> _validator;
-        public static List<Account> accounts = new()
-        {
-            new Account { SoTaiKhoan = "9999", TenTaiKhoan = "Phan Sy Tu", SoDu = 100000000m },
-            new Account { SoTaiKhoan = "9998", TenTaiKhoan = "Anh La Tu", SoDu = 1500000m }
-        };
+
         public BankService(IValidator<TransferRequest> validator)
         {
             _validator = validator;
@@ -31,12 +28,12 @@ namespace GlobalMiddlewear.Service
             {
                 throw new InvalidTransferException("Dữ liệu chuyển khoản không hợp lệ.");
             }
-            lock (accounts)
+            lock (AccountData.accounts)
             {
-                var fromAccount = accounts.FirstOrDefault(a => a.SoTaiKhoan == request.tuTaikhoan)
+                var fromAccount = AccountData.accounts.FirstOrDefault(a => a.SoTaiKhoan == request.tuTaikhoan)
                     ?? throw new AccountNotFoundException(request.tuTaikhoan);
 
-                var toAccount = accounts.FirstOrDefault(a => a.SoTaiKhoan == request.DenTaiKhoan)
+                var toAccount = AccountData.accounts.FirstOrDefault(a => a.SoTaiKhoan == request.DenTaiKhoan)
                     ?? throw new AccountNotFoundException(request.DenTaiKhoan);
 
                 if (fromAccount.SoDu < request.tienChuyen)
